@@ -1,4 +1,5 @@
 const express = require("express");
+const { ObjectId } = require("mongodb");
 
 // recordRoutes is an instance of the express router.
 // We use it to define our routes.
@@ -49,15 +50,17 @@ recordRoutes.route("/users/addUser").post(function (req, res) {
 // This section will help you update a document by id.
 recordRoutes.route("/users/updateUser").post(function (req, res) {
   const dbConnect = dbo.getDb();
-  const listingQuery = { _id: req.body.id };
+  const listingQuery = { _id: ObjectId(req.body.id) };
   const updates = {
-    $inc: {
-      likes: 1,
+    $set: {
+      //$set for setting value $inc for incrementing value
+      userName99: "500",
     },
   };
+  
 
   dbConnect
-    .collection("listingsAndReviews")
+    .collection("users")
     .updateOne(listingQuery, updates, function (err, _result) {
       if (err) {
         res
