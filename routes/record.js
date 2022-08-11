@@ -32,6 +32,7 @@ recordRoutes.route("/users/addUser").post(function (req, res) {
 
   const matchDocument = {
     userName: req.body.userName,
+    eMail: req.body.eMail,
     password: req.body.password,
     lastModified: new Date(),
   };
