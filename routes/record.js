@@ -32,7 +32,8 @@ recordRoutes.route("/users/addUser").post(function (req, res) {
 
   const matchDocument = {
     userName: req.body.userName,
-    userRole: req.body.userRole,
+    password: req.body.password,
+    lastModified: new Date(),
   };
 
   dbConnect
@@ -57,7 +58,6 @@ recordRoutes.route("/users/updateUser").post(function (req, res) {
       userName99: "500",
     },
   };
-  
 
   dbConnect
     .collection("users")
