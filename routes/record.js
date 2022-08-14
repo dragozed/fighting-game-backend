@@ -26,27 +26,36 @@ recordRoutes.route("/users").get(async function (req, res) {
     });
 });
 
-// Create a new document under deneme/users.
+// Create a new document under deneme/users and deneme/village-status.
 recordRoutes.route("/users/addUser").post(function (req, res) {
   const dbConnect = dbo.getDb();
+  let insertedId;
 
-  const matchDocument = {
+  const userDocument = {
     userName: req.body.userName,
     eMail: req.body.eMail,
     password: req.body.password,
     lastModified: new Date(),
   };
 
-  dbConnect
-    .collection("users")
-    .insertOne(matchDocument, function (err, result) {
-      if (err) {
-        res.status(400).send("Error adding user!");
-      } else {
-        console.log(`Added a new user with id ${result.insertedId}`);
-        res.status(204).send();
-      }
-    });
+  dbConnect.collection("users").insertOne(userDocument, function (err, result) {
+    if (err) {
+      res.status(400).send("Error adding user!");
+    } else {
+      insertedId = result.insertedId;
+      console.log(`Added a new user with id ${insertedId}`);
+      res.status(204).send();
+      dbConnect.collection("village-status").insertOne(insertedId),
+        function (err, result) {
+          if (err) {
+            res.status(400).send("Error adding village-status!");
+          } else {
+            console.log("Added village-status");
+            res.status(204).send();
+          }
+        };
+    }
+  });
 });
 
 // This section will help you update a document by id.
