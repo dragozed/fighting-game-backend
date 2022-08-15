@@ -26,10 +26,24 @@ recordRoutes.route("/users").get(async function (req, res) {
     });
 });
 
-// Create a new document under deneme/users and deneme/village-status.
+recordRoutes.route("/villageStatus").get(async function (req, res) {
+  const dbConnect = dbo.getDb();
+  dbConnect
+    .collection("villageStatus")
+    .find({ userName: req.query.userName })
+    .limit(50)
+    .toArray(function (err, result) {
+      if (err) {
+        res.status(400).send("Error fetching listings!");
+      } else {
+        res.json(result);
+      }
+    });
+});
+
+// Create a new document under deneme/users and deneme/villageStatus.
 recordRoutes.route("/users/addUser").post(function (req, res) {
   const dbConnect = dbo.getDb();
-  let insertedId;
 
   const userDocument = {
     userName: req.body.userName,
@@ -42,23 +56,41 @@ recordRoutes.route("/users/addUser").post(function (req, res) {
     if (err) {
       res.status(400).send("Error adding user!");
     } else {
-      insertedId = result.insertedId;
-      console.log(`Added a new user with id ${insertedId}`);
-      res.status(204).send();
-      dbConnect.collection("village-status").insertOne(insertedId),
-        function (err, result) {
-          if (err) {
-            res.status(400).send("Error adding village-status!");
-          } else {
-            console.log("Added village-status");
-            res.status(204).send();
-          }
-        };
+      console.log(`Added a new user with id ${result.insertedId}`);
     }
   });
 });
 
-// This section will help you update a document by id.
+recordRoutes.route("/villageStatus/addStatus").post(function (req, res) {
+  const dbConnect = dbo.getDb();
+
+  const userDocument = {
+    userName: req.body.userName,
+    villageStatus: {
+      wood: 0,
+      stone: 0,
+      iron: 0,
+      trainingGroundsLevel: 0,
+      trainingGroundsWoodReq: 5,
+      trainingGroundsStoneReq: 5,
+      trainingGroundsIronReq: 0,
+    },
+    lastModified: new Date(),
+  };
+
+  dbConnect
+    .collection("villageStatus")
+    .insertOne(userDocument, function (err, result) {
+      if (err) {
+        res.status(400).send("Error adding villageStatus!");
+      } else {
+        insertedId = result.insertedId;
+        console.log(`Added a new villageStatus`);
+      }
+    });
+});
+
+// This section will help update a document by id.
 recordRoutes.route("/users/updateUser").post(function (req, res) {
   const dbConnect = dbo.getDb();
   const listingQuery = { _id: ObjectId(req.body.id) };
@@ -78,6 +110,31 @@ recordRoutes.route("/users/updateUser").post(function (req, res) {
           .send(`Error updating likes on listing with id ${listingQuery.id}!`);
       } else {
         console.log("1 document updated");
+      }
+    });
+});
+
+recordRoutes.route("/villageStatus/updateStatus").post(function (req, res) {
+  const dbConnect = dbo.getDb();
+  const listingQuery = { userName: req.body.userName };
+  const updates = {
+    $set: {
+      //$set for setting value $inc for incrementing value
+      villageStatus: req.body.villageStatus,
+    },
+  };
+
+  dbConnect
+    .collection("villageStatus")
+    .updateOne(listingQuery, updates, function (err, _result) {
+      if (err) {
+        res
+          .status(400)
+          .send(
+            `Error updating villageStatus for user ${listingQuery.userName}!`
+          );
+      } else {
+        console.log("villageStatus updated");
       }
     });
 });
