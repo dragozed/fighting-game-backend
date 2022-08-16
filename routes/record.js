@@ -118,13 +118,13 @@ recordRoutes.route("/inventory/createInventory").post(function (req, res) {
   };
 
   dbConnect
-    .collection("villageStatus")
+    .collection("inventory")
     .insertOne(userDocument, function (err, result) {
       if (err) {
-        res.status(400).send("Error adding villageStatus!");
+        res.status(400).send("Error adding inventory!");
       } else {
         insertedId = result.insertedId;
-        console.log(`Added a new villageStatus`);
+        console.log(`Added a new inventory`);
       }
     });
 });
