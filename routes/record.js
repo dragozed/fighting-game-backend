@@ -41,8 +41,23 @@ recordRoutes.route("/villageStatus").get(async function (req, res) {
     });
 });
 
+recordRoutes.route("/inventory").get(async function (req, res) {
+  const dbConnect = dbo.getDb();
+  dbConnect
+    .collection("inventory")
+    .find({ userName: req.query.userName })
+    .limit(50)
+    .toArray(function (err, result) {
+      if (err) {
+        res.status(400).send("Error fetching listings!");
+      } else {
+        res.json(result);
+      }
+    });
+});
+
 // Create a new document under deneme/users and deneme/villageStatus.
-recordRoutes.route("/users/addUser").post(function (req, res) {
+recordRoutes.route("/users/createUser").post(function (req, res) {
   const dbConnect = dbo.getDb();
 
   const userDocument = {
@@ -61,7 +76,7 @@ recordRoutes.route("/users/addUser").post(function (req, res) {
   });
 });
 
-recordRoutes.route("/villageStatus/addStatus").post(function (req, res) {
+recordRoutes.route("/villageStatus/createStatus").post(function (req, res) {
   const dbConnect = dbo.getDb();
 
   const userDocument = {
@@ -90,13 +105,36 @@ recordRoutes.route("/villageStatus/addStatus").post(function (req, res) {
     });
 });
 
+recordRoutes.route("/inventory/createInventory").post(function (req, res) {
+  const dbConnect = dbo.getDb();
+
+  const userDocument = {
+    userName: req.body.userName,
+    inventory: {
+      characters: "Kong",
+      minions: "Lizard Minion",
+    },
+    lastModified: new Date(),
+  };
+
+  dbConnect
+    .collection("villageStatus")
+    .insertOne(userDocument, function (err, result) {
+      if (err) {
+        res.status(400).send("Error adding villageStatus!");
+      } else {
+        insertedId = result.insertedId;
+        console.log(`Added a new villageStatus`);
+      }
+    });
+});
+
 // This section will help update a document by id.
 recordRoutes.route("/users/updateUser").post(function (req, res) {
   const dbConnect = dbo.getDb();
   const listingQuery = { _id: ObjectId(req.body.id) };
   const updates = {
     $set: {
-      //$set for setting value $inc for incrementing value
       userName99: "500",
     },
   };
@@ -119,7 +157,6 @@ recordRoutes.route("/villageStatus/updateStatus").post(function (req, res) {
   const listingQuery = { userName: req.body.userName };
   const updates = {
     $set: {
-      //$set for setting value $inc for incrementing value
       villageStatus: req.body.villageStatus,
     },
   };
@@ -135,6 +172,28 @@ recordRoutes.route("/villageStatus/updateStatus").post(function (req, res) {
           );
       } else {
         console.log("villageStatus updated");
+      }
+    });
+});
+
+recordRoutes.route("/inventory/updateInventory").post(function (req, res) {
+  const dbConnect = dbo.getDb();
+  const listingQuery = { userName: req.body.userName };
+  const updates = {
+    $set: {
+      inventory: req.body.inventory,
+    },
+  };
+
+  dbConnect
+    .collection("inventory")
+    .updateOne(listingQuery, updates, function (err, _result) {
+      if (err) {
+        res
+          .status(400)
+          .send(`Error updating inventory for user ${listingQuery.userName}!`);
+      } else {
+        console.log("inventory updated");
       }
     });
 });
