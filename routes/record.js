@@ -112,7 +112,7 @@ recordRoutes.route("/inventory/createInventory").post(function (req, res) {
     userName: req.body.userName,
     inventory: {
       characters: ["Kong"],
-      minions: "Lizard Minion",
+      minions: ["Lizard Minion"],
     },
     lastModified: new Date(),
   };
